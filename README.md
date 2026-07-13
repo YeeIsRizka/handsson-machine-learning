@@ -125,7 +125,9 @@ Dense(26, Softmax)  →  Output (A-Z)
 #### Setup & Run
 
 ```bash
-cd data-collection
+# Clone repository
+git clone https://github.com/YeeIsRizka/handsson-machine-learning.git
+cd handsson-machine-learning/data-collection
 
 # Install dependensi
 pip install -r requirements.txt
