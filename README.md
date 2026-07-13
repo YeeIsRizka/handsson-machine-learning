@@ -1,94 +1,94 @@
 # BISINDO Hand Landmark Recognition
 
-Proyek pengenalan bahasa isyarat **BISINDO** (Bahasa Isyarat Indonesia) huruf A–Z menggunakan **MediaPipe Hands** untuk ekstraksi landmark dan **MLP (Multilayer Perceptron)** untuk klasifikasi, dengan model yang dapat di-deploy ke web melalui **TensorFlow.js**.
+A sign language recognition project for **BISINDO** (Bahasa Isyarat Indonesia / Indonesian Sign Language) letters A–Z using **MediaPipe Hands** for landmark extraction and **MLP (Multilayer Perceptron)** for classification, with model deployment to the web via **TensorFlow.js**.
 
 ---
 
-## 📋 Deskripsi
+## 📋 Description
 
-Proyek ini terdiri dari dua komponen utama:
+This project consists of two main components:
 
-1. **Data Collection** — Script Python untuk mengumpulkan data landmark tangan secara real-time melalui webcam menggunakan MediaPipe Hands
-2. **Model Training** — Notebook Google Colab untuk melatih model MLP klasifikasi gesture BISINDO dan mengonversinya ke format TensorFlow.js
+1. **Data Collection** — A Python script for collecting hand landmark data in real-time via webcam using MediaPipe Hands
+2. **Model Training** — A Google Colab notebook for training an MLP classification model for BISINDO gestures and converting it to TensorFlow.js format
 
-### Fitur Utama
+### Key Features
 
-- 🖐️ **Deteksi otomatis mode satu/dua tangan** berdasarkan label huruf
-- 📐 **Normalisasi dua tahap**: Translation → Scale normalization
-- 📊 **Format konsisten 126 fitur** (63 per tangan × 2 tangan) untuk semua label
-- 🧠 **Model MLP** dengan arsitektur `128 → 64 → 26` neuron
-- 🌐 **Export ke TensorFlow.js** untuk deployment di web browser
-- 📈 **Evaluasi lengkap**: Classification report, confusion matrix, grafik akurasi & loss
+- 🖐️ **Automatic single/dual hand mode detection** based on letter label
+- 📐 **Two-stage normalization**: Translation → Scale normalization
+- 📊 **Consistent 126-feature format** (63 per hand × 2 hands) for all labels
+- 🧠 **MLP model** with `128 → 64 → 26` neuron architecture
+- 🌐 **Export to TensorFlow.js** for web browser deployment
+- 📈 **Comprehensive evaluation**: Classification report, confusion matrix, accuracy & loss graphs
 
 ---
 
-## 📁 Struktur Proyek
+## 📁 Project Structure
 
 ```
 final/
-├── data-collection/                  # Modul pengumpulan data
-│   ├── collect_landmarks.py          # Script utama pengumpulan data via webcam
-│   └── requirements.txt             # Dependensi untuk data collection
+├── data-collection/                  # Data collection module
+│   ├── collect_landmarks.py          # Main data collection script via webcam
+│   └── requirements.txt             # Dependencies for data collection
 │
-├── model/                            # Model hasil pelatihan
+├── model/                            # Trained model outputs
 │   ├── label_encoder.pkl             # Label encoder (sklearn)
-│   ├── saved_models_mlp.zip          # Model TensorFlow SavedModel
-│   └── mlp_tfjs_model.zip            # Model TensorFlow.js (untuk web deployment)
+│   ├── saved_models_mlp.zip          # TensorFlow SavedModel
+│   └── mlp_tfjs_model.zip            # TensorFlow.js model (for web deployment)
 │
-├── BISINDO0.ipynb                    # Notebook pelatihan model (Google Colab)
-├── bisindo0.py                       # Versi script dari notebook
-├── bisindo_landmarks_scaled.csv      # Dataset utama (scale normalized landmarks)
-├── train.csv                         # Dataset training (80%)
-├── test.csv                          # Dataset testing (20%)
-├── requirements.txt                  # Dependensi untuk training (Colab environment)
-└── README.md                         # Dokumentasi (file ini)
+├── BISINDO0.ipynb                    # Model training notebook (Google Colab)
+├── bisindo0.py                       # Script version of the notebook
+├── bisindo_landmarks_scaled.csv      # Main dataset (scale normalized landmarks)
+├── train.csv                         # Training dataset (80%)
+├── test.csv                          # Testing dataset (20%)
+├── requirements.txt                  # Dependencies for training (Colab environment)
+└── README.md                         # Documentation (this file)
 ```
 
 ---
 
-## 🏷️ Klasifikasi Label
+## 🏷️ Label Classification
 
-| Mode         | Label Huruf                                      |
-|-------------|--------------------------------------------------|
-| Satu Tangan | C, E, I, J, L, O, R, U, V, Z                    |
-| Dua Tangan  | A, B, D, F, G, H, K, M, N, P, Q, S, T, W, X, Y |
+| Mode       | Letter Labels                                    |
+|-----------|--------------------------------------------------|
+| One Hand  | C, E, I, J, L, O, R, U, V, Z                    |
+| Two Hands | A, B, D, F, G, H, K, M, N, P, Q, S, T, W, X, Y |
 
 ---
 
-## 📊 Format Dataset
+## 📊 Dataset Format
 
-File `bisindo_landmarks_scaled.csv` memiliki **127 kolom**:
+The file `bisindo_landmarks_scaled.csv` contains **127 columns**:
 
-| Kolom | Deskripsi |
+| Column | Description |
 |---|---|
-| `label` | Huruf alfabet BISINDO (A–Z) |
-| `left_0_x` ... `left_20_z` | 63 fitur landmark tangan kiri (21 titik × 3 koordinat) |
-| `right_0_x` ... `right_20_z` | 63 fitur landmark tangan kanan (21 titik × 3 koordinat) |
+| `label` | BISINDO alphabet letter (A–Z) |
+| `left_0_x` ... `left_20_z` | 63 left hand landmark features (21 points × 3 coordinates) |
+| `right_0_x` ... `right_20_z` | 63 right hand landmark features (21 points × 3 coordinates) |
 
-> **Catatan:** Untuk label satu tangan, fitur tangan yang tidak terdeteksi diisi `0.0`.
+> **Note:** For single-hand labels, features of the undetected hand are filled with `0.0`.
 
-### Proses Normalisasi
+### Normalization Process
 
-1. **Translation Normalization** — Setiap landmark dikurangi posisi wrist (titik 0) sehingga wrist menjadi origin `(0, 0, 0)`
-2. **Scale Normalization** — Landmark yang sudah ditranslasi dibagi dengan jarak Euclidean antara nilai max dan min, sehingga invariant terhadap ukuran tangan
+1. **Translation Normalization** — Each landmark is subtracted by the wrist position (point 0) so that the wrist becomes the origin `(0, 0, 0)`
+2. **Scale Normalization** — The translated landmarks are divided by the Euclidean distance between the max and min values, making them invariant to hand size
 
-### Pembagian Dataset
+### Dataset Split
 
-| Split | Proporsi | File |
-|-------|----------|------|
-| Training | 80% | `train.csv` |
-| Testing  | 20% | `test.csv` |
+| Split    | Proportion | File        |
+|----------|------------|-------------|
+| Training | 80%        | `train.csv` |
+| Testing  | 20%        | `test.csv`  |
 
-Pembagian dilakukan secara **stratified** (proporsi tiap label terjaga) dengan `random_state=42`.
+The split is performed using **stratified sampling** (preserving the proportion of each label) with `random_state=42`.
 
 ---
 
-## 🧠 Arsitektur Model
+## 🧠 Model Architecture
 
-Model menggunakan **Multilayer Perceptron (MLP)** dengan arsitektur berikut:
+The model uses a **Multilayer Perceptron (MLP)** with the following architecture:
 
 ```
-Input (126 fitur)
+Input (126 features)
     │
 Dense(128, ReLU)
     │
@@ -101,89 +101,89 @@ Dropout(0.2)
 Dense(26, Softmax)  →  Output (A-Z)
 ```
 
-### Hyperparameter Training
+### Training Hyperparameters
 
-| Parameter | Nilai |
-|-----------|-------|
-| Optimizer | Adam (lr = 0.001) |
-| Loss Function | Sparse Categorical Crossentropy |
-| Epochs | 100 (max) |
-| Batch Size | 32 |
-| Early Stopping | patience = 10, restore best weights |
-| ReduceLROnPlateau | factor = 0.5, patience = 5, min_lr = 1e-6 |
+| Parameter         | Value                                       |
+|-------------------|---------------------------------------------|
+| Optimizer         | Adam (lr = 0.001)                           |
+| Loss Function     | Sparse Categorical Crossentropy             |
+| Epochs            | 100 (max)                                   |
+| Batch Size        | 32                                          |
+| Early Stopping    | patience = 10, restore best weights         |
+| ReduceLROnPlateau | factor = 0.5, patience = 5, min_lr = 1e-6   |
 
 ---
 
-## ⚙️ Instalasi & Penggunaan
+## ⚙️ Installation & Usage
 
-### A. Data Collection (Lokal)
+### A. Data Collection (Local)
 
-#### Prasyarat
+#### Prerequisites
 - Python 3.8+
 - Webcam
 
 #### Setup & Run
 
 ```bash
-# Clone repository
+# Clone the repository
 git clone https://github.com/YeeIsRizka/handsson-machine-learning.git
 cd handsson-machine-learning/data-collection
 
-# Install dependensi
+# Install dependencies
 pip install -r requirements.txt
 
-# Jalankan script
+# Run the script
 python collect_landmarks.py
 ```
 
-#### Kontrol Pengambilan Data
+#### Data Collection Controls
 
-| Tombol | Fungsi |
-|--------|--------|
-| `s` | Mulai pengambilan data (countdown 5 detik) |
-| `q` | Keluar dari program |
+| Key | Function                                  |
+|-----|-------------------------------------------|
+| `s` | Start data collection (5-second countdown) |
+| `q` | Exit the program                          |
 
-#### Alur Penggunaan
+#### Usage Flow
 
-1. Jalankan script → pilih label huruf → masukkan jumlah sampel
-2. Tekan `s` pada window kamera → countdown 5 detik
-3. Data diambil otomatis setiap **1 detik**
-4. Sampel hanya disimpan jika jumlah tangan terdeteksi sesuai mode label
-5. Data di-append ke `bisindo_landmarks_scaled.csv`
+1. Run the script → select a letter label → enter the number of samples
+2. Press `s` on the camera window → 5-second countdown
+3. Data is automatically captured every **1 second**
+4. Samples are only saved if the detected number of hands matches the label mode
+5. Data is appended to `bisindo_landmarks_scaled.csv`
 
 ---
 
 ### B. Model Training (Google Colab)
 
-1. Upload `BISINDO0.ipynb` ke [Google Colab](https://colab.research.google.com/)
-2. Upload `bisindo_landmarks_scaled.csv` ke environment Colab
-3. Jalankan semua cell secara berurutan
-4. Download model hasil training dari folder `model/`
+1. Upload `BISINDO0.ipynb` to [Google Colab](https://colab.research.google.com/)
+2. Upload `bisindo_landmarks_scaled.csv` to the Colab environment
+3. Run all cells sequentially
+4. Download the trained models from the `model/` folder
 
-#### Output Training
+#### Training Outputs
 
-| File | Format | Kegunaan |
-|------|--------|----------|
-| `label_encoder.pkl` | Pickle | Mapping label huruf ↔ index numerik |
-| `saved_models_mlp.zip` | TensorFlow SavedModel | Inferensi di Python/TensorFlow |
-| `mlp_tfjs_model.zip` | TensorFlow.js | Deployment di web browser |
+| File                     | Format               | Purpose                              |
+|--------------------------|----------------------|--------------------------------------|
+| `label_encoder.pkl`      | Pickle               | Letter label ↔ numeric index mapping |
+| `saved_models_mlp.zip`   | TensorFlow SavedModel | Inference in Python/TensorFlow       |
+| `mlp_tfjs_model.zip`     | TensorFlow.js        | Web browser deployment               |
 
 ---
 
-## 🔧 Konfigurasi
+## 🔧 Configuration
 
 ### Data Collection
 
-| Parameter | Default | Deskripsi |
-|-----------|---------|-----------|
-| `SAMPLE_INTERVAL` | `1.0` | Interval waktu antar sampel (detik) |
-| `PREPARATION_TIME` | `5` | Waktu persiapan sebelum mulai (detik) |
-| `min_detection_confidence` | `0.7` | Confidence minimum deteksi tangan |
-| `min_tracking_confidence` | `0.7` | Confidence minimum tracking tangan |
+| Parameter                  | Default | Description                                   |
+|----------------------------|---------|-----------------------------------------------|
+| `SAMPLE_INTERVAL`          | `1.0`   | Time interval between samples (seconds)       |
+| `PREPARATION_TIME`         | `5`     | Preparation time before starting (seconds)    |
+| `min_detection_confidence` | `0.7`   | Minimum hand detection confidence             |
+| `min_tracking_confidence`  | `0.7`   | Minimum hand tracking confidence              |
 
 ---
 
-## 🧪 Pipeline End-to-End
+## 🧪 End-to-End Pipeline
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -207,11 +207,11 @@ python collect_landmarks.py
 
 ---
 
-## 📚 Sumber Dataset Referensi
+## 📚 Dataset References
 
-Dataset ini dikumpulkan secara mandiri melalui webcam. Berikut referensi dataset BISINDO lain yang digunakan sebagai studi:
+The dataset was collected independently via webcam. The following BISINDO datasets were used as references for study:
 
-- [Alfabet BISINDO — Achmad Noer](https://www.kaggle.com/datasets/achmadnoer/alfabet-bisindo)
+- [BISINDO Alphabet — Achmad Noer](https://www.kaggle.com/datasets/achmadnoer/alfabet-bisindo)
 - [BISINDO Dataset — Yunita Ayu](https://www.kaggle.com/datasets/yunitayupratiwi/bisindo-dataset/data)
 - [BISINDO Letter Dataset — Alfredo](https://www.kaggle.com/datasets/alfredolorentiars/bisindo-letter-dataset)
 - [BISINDO Hand Sign Detection — Rhio Sutoyo](https://github.com/rhiosutoyo/Indonesian-Sign-Language-BISINDO-Hand-Sign-Detection-Dataset)
@@ -222,26 +222,28 @@ Dataset ini dikumpulkan secara mandiri melalui webcam. Berikut referensi dataset
 
 ## 🛠️ Tech Stack
 
-| Teknologi | Kegunaan |
-|-----------|----------|
-| Python | Bahasa pemrograman utama |
-| MediaPipe | Deteksi & ekstraksi landmark tangan |
-| OpenCV | Akses webcam & visualisasi |
-| NumPy | Komputasi normalisasi |
-| TensorFlow / Keras | Training model MLP |
-| Scikit-learn | Label encoding, train-test split, evaluasi |
-| TensorFlow.js | Konversi model untuk web deployment |
-| Matplotlib & Seaborn | Visualisasi (grafik, confusion matrix) |
-| Google Colab | Environment training |
+| Technology             | Purpose                                    |
+|------------------------|--------------------------------------------|
+| Python                 | Primary programming language               |
+| MediaPipe              | Hand detection & landmark extraction       |
+| OpenCV                 | Webcam access & visualization              |
+| NumPy                  | Normalization computation                  |
+| TensorFlow / Keras     | MLP model training                         |
+| Scikit-learn           | Label encoding, train-test split, evaluation |
+| TensorFlow.js          | Model conversion for web deployment        |
+| Matplotlib & Seaborn   | Visualization (graphs, confusion matrix)   |
+| Google Colab           | Training environment                       |
 
 ---
 
-## 📜 Lisensi
+## 📜 License
 
-Proyek ini dibuat untuk keperluan skripsi/penelitian akademis.
+This project is licensed under the [MIT License](LICENSE).
+
+Copyright (c) 2026 Rizka Alfadilla
 
 ---
 
-## 🤝 Kontribusi
+## 🤝 Contributing
 
-Kontribusi dalam bentuk *issue* maupun *pull request* sangat diterima. Silakan buat issue terlebih dahulu untuk mendiskusikan perubahan yang diinginkan.
+Contributions via *issues* and *pull requests* are welcome. Please create an issue first to discuss any proposed changes.
