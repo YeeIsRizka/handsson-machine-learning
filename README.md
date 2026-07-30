@@ -32,14 +32,17 @@ final/
 │
 ├── model/                            # Trained model outputs
 │   ├── label_encoder.pkl             # Label encoder (sklearn)
-│   ├── saved_models_mlp.zip          # TensorFlow SavedModel
+│   ├── best_model_mlp_savedmodel.zip  # TensorFlow SavedModel
 │   └── mlp_tfjs_model.zip            # TensorFlow.js model (for web deployment)
 │
-├── BISINDO0.ipynb                    # Model training notebook (Google Colab)
-├── bisindo0.py                       # Script version of the notebook
+├── Training_BISINDO.ipynb            # Model training notebook (Google Colab)
+├── training_bisindo.py               # Script version of the notebook
 ├── bisindo_landmarks_scaled.csv      # Main dataset (scale normalized landmarks)
-├── train.csv                         # Training dataset (80%)
-├── test.csv                          # Testing dataset (20%)
+├── train.csv                         # Training dataset (70%)
+├── validation.csv                    # Validation dataset (15%)
+├── test.csv                          # Testing dataset (15%)
+├── confusion_matrix_mlp.png          # Confusion matrix visualization
+├── training_validation_mlp.png       # Accuracy/loss training curves
 ├── requirements.txt                  # Dependencies for training (Colab environment)
 └── README.md                         # Documentation (this file)
 ```
@@ -76,8 +79,9 @@ The file `bisindo_landmarks_scaled.csv` contains **127 columns**:
 
 | Split    | Proportion | File        |
 |----------|------------|-------------|
-| Training | 80%        | `train.csv` |
-| Testing  | 20%        | `test.csv`  |
+| Training | 70%        | `train.csv` |
+| Validation | 15%      | `validation.csv` |
+| Testing  | 15%        | `test.csv`  |
 
 The split is performed using **stratified sampling** (preserving the proportion of each label) with `random_state=42`.
 
@@ -111,6 +115,31 @@ Dense(26, Softmax)  →  Output (A-Z)
 | Batch Size        | 32                                          |
 | Early Stopping    | patience = 10, restore best weights         |
 | ReduceLROnPlateau | factor = 0.5, patience = 5, min_lr = 1e-6   |
+
+### Training Outputs
+
+| File                           | Purpose                                  |
+|--------------------------------|------------------------------------------|
+| `best_model_mlp_savedmodel.zip` | TensorFlow SavedModel archive           |
+| `mlp_tfjs_model.zip`           | TensorFlow.js model for browser use      |
+| `label_encoder.pkl`            | Label to index mapping                   |
+| `confusion_matrix_mlp.png`     | Confusion matrix visualization           |
+| `training_validation_mlp.png`   | Training and validation curve chart      |
+
+## 📈 Results
+
+The latest training run produced the following results:
+
+| Metric | Value |
+|--------|-------|
+| Train Loss | 0.0072 |
+| Train Accuracy | 0.9973 |
+| Validation Loss | 0.0277 |
+| Validation Accuracy | 0.9915 |
+| Test Loss | 0.0531 |
+| Test Accuracy | 0.9932 |
+
+The notebook also generates `confusion_matrix_mlp.png` and `training_validation_mlp.png`.
 
 ---
 
@@ -155,17 +184,17 @@ python collect_landmarks.py
 
 ### B. Model Training (Google Colab)
 
-1. Upload `BISINDO0.ipynb` to [Google Colab](https://colab.research.google.com/)
+1. Upload `Training_BISINDO.ipynb` to [Google Colab](https://colab.research.google.com/)
 2. Upload `bisindo_landmarks_scaled.csv` to the Colab environment
 3. Run all cells sequentially
-4. Download the trained models from the `model/` folder
+4. Download the trained models and visual outputs from the `model/` folder and notebook runtime output
 
 #### Training Outputs
 
 | File                     | Format               | Purpose                              |
 |--------------------------|----------------------|--------------------------------------|
 | `label_encoder.pkl`      | Pickle               | Letter label ↔ numeric index mapping |
-| `saved_models_mlp.zip`   | TensorFlow SavedModel | Inference in Python/TensorFlow       |
+| `best_model_mlp_savedmodel.zip` | TensorFlow SavedModel | Inference in Python/TensorFlow |
 | `mlp_tfjs_model.zip`     | TensorFlow.js        | Web browser deployment               |
 
 ---
@@ -198,7 +227,7 @@ python collect_landmarks.py
 ┌──────────────────────────▼──────────────────────────────┐
 │                    MODEL TRAINING                        │
 │                                                         │
-│  CSV → Stratified Split (80/20)                         │
+│  CSV → Stratified Split (70/15/15)                      │
 │      → Label Encoding → MLP Training                   │
 │      → Evaluation (Report + Confusion Matrix)           │
 │      → Export (SavedModel + TensorFlow.js)              │
